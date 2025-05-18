@@ -1,0 +1,6 @@
+{
+    "variants": {
+        "broken_state=broken": {"model": "slipboot:block/warp_broken"},
+        "broken_state=intact": {"model": "slipboot:block/warp_intact"}
+    }
+}
