@@ -55,35 +55,35 @@ public class WarpBlockEntity extends BlockEntity implements MenuProvider {
         public void render(BlockEntity entity, float partialTick, PoseStack stack, MultiBufferSource bufferSource,
                 int packedLight, int packedOverlay) {
             // TODO Auto-generated method stub
-            BlockState state = entity.getBlockState();
-            Level level = entity.getLevel();
-            BlockPos pos = entity.getBlockPos();
-            
-            BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
-            RandomSource randomSource = RandomSource.create();
-            stack.pushPose();
-            if (level != null) {
-                // This ensures we get the correct light value from the world
-                packedLight = LevelRenderer.getLightColor(level, pos);
-            }
-            BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
-            for (RenderType renderType : model.getRenderTypes(state, randomSource, ModelData.EMPTY)) {
-                dispatcher.getModelRenderer().renderModel(
-                    stack.last(),
-                    bufferSource.getBuffer(RenderType.solid()),
-                    state,
-                    model,
+            // BlockState state = entity.getBlockState();
+            // Level level = entity.getLevel();
+            // BlockPos pos = entity.getBlockPos();
+
+            // BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
+            // RandomSource randomSource = RandomSource.create();
+            // stack.pushPose();
+            // if (level != null) {
+            //     // This ensures we get the correct light value from the world
+            //     packedLight = LevelRenderer.getLightColor(level, pos);
+            // }
+            // BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
+            // for (RenderType renderType : model.getRenderTypes(state, randomSource, ModelData.EMPTY)) {
+            //     dispatcher.getModelRenderer().renderModel(
+            //         stack.last(),
+            //         bufferSource.getBuffer(RenderType.solid()),
+            //         state,
+            //         model,
                     
-                    // RGB values (typically 1.0f each unless you want tinting)
-                    1.0F, 1.0F, 1.0F,
+            //         // RGB values (typically 1.0f each unless you want tinting)
+            //         1.0F, 1.0F, 1.0F,
                     
-                    packedLight,
-                    packedOverlay,
-                    ModelData.EMPTY,
-                    renderType
-                );
-            }
-            stack.popPose();
+            //         packedLight,
+            //         packedOverlay,
+            //         ModelData.EMPTY,
+            //         renderType
+            //     );
+            // }
+            // stack.popPose();
         }
 
     }
