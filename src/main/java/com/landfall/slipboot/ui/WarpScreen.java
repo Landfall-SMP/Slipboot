@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public class WarpScreen extends AbstractContainerScreen<WarpMenu> {
-    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(SlipBoot.MODID, "gui/warp/warp_gui");
+    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(SlipBoot.MODID, "textures/gui/warp/warp_gui");
     public WarpScreen(AbstractContainerMenu menu, Inventory inventory, Component name) {
         super((WarpMenu) menu, inventory, name);
         //TODO Auto-generated constructor stub

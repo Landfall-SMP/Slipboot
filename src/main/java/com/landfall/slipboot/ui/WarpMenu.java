@@ -1,6 +1,7 @@
 package com.landfall.slipboot.ui;
 
 import com.landfall.slipboot.ModBlocks;
+import com.landfall.slipboot.ModMenuTypes;
 import com.landfall.slipboot.blocks.WarpBlock;
 
 import net.minecraft.core.BlockPos;

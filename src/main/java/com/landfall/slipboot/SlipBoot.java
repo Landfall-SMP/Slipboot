@@ -1,7 +1,6 @@
 package com.landfall.slipboot;
 
 import com.landfall.slipboot.blocks.WarpBlockEntity;
-import com.landfall.slipboot.ui.ModMenuTypes;
 import com.landfall.slipboot.ui.WarpMenu;
 import com.landfall.slipboot.ui.WarpScreen;
 import com.mojang.logging.LogUtils;

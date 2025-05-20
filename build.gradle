@@ -13,7 +13,7 @@ base {
 }
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
@@ -73,7 +73,7 @@ minecraft {
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
-
+    
             mods {
                 "${mod_id}" {
                     source sourceSets.main
@@ -117,9 +117,10 @@ repositories {
 
     // If you have mod jar dependencies in ./libs, you can declare them as a repository like so.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html#sub:flat_dir_resolver
-    // flatDir {
-    //     dir 'libs'
-    // }
+    flatDir {
+        dir 'libs'
+    }
+    maven { url 'https://repo.bluecolored.de/releases' }
 }
 
 dependencies {
@@ -128,14 +129,15 @@ dependencies {
     // The "userdev" classifier will be requested and setup by ForgeGradle.
     // If the group id is "net.minecraft" and the artifact id is one of ["client", "server", "joined"],
     // then special handling is done to allow a setup of a vanilla dependency without the use of an external repository.
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    minecraft fg.deobf("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}")
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
-
+    iplementation "de.bluecolored:bluemap:2.7.4"
+    //runtimeOnly files(name: './libs/BlueMap-5.3-forge-1.20.jar')
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
     // The group id is ignored when searching -- in this case, it is "blank"
@@ -197,7 +199,9 @@ publishing {
     }
     repositories {
         maven {
+            
             url "file://${project.projectDir}/mcmodsrepo"
+        
         }
     }
 }

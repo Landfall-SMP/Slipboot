@@ -45,7 +45,7 @@ public class WarpBlockEntity extends BlockEntity implements MenuProvider {
     @Override
     public Component getDisplayName() {
         // TODO Auto-generated method stub
-        return Component.translatable("menu.warp");
+        return Component.translatable("com.landfall.slipboot.menu.warp");
     }
     public static class WarpRenderer implements BlockEntityRenderer {
         public WarpRenderer(BlockEntityRendererProvider.Context context) {
