@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.confect1on.slipboot.mixin",
+  "package": "world.landfall.slipboot.mixin",
   "compatibilityLevel": "JAVA_8",
   "refmap": "slipboot.refmap.json",
   "mixins": [
