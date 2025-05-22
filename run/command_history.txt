@@ -1,0 +1,5 @@
+/setblock ~ ~ ~ slipboot:example_block
+/gamemode creative
+/gamemode survival
+/setblock ~ ~ ~ slipboot:repairable_block
+/setblock ~ ~ ~ slipboot:warp

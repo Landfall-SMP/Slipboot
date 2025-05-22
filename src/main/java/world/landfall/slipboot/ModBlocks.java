@@ -1,0 +1,19 @@
+package world.landfall.slipboot;
+
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import world.landfall.slipboot.blocks.RepairableBlock;
+import world.landfall.slipboot.blocks.WarpBlock;
+
+public class ModBlocks {
+    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Slipboot.MODID);
+    public static final DeferredBlock<Block> REPAIRABLE_BLOCK = BLOCKS.register("repairable_block", (registryName) -> new RepairableBlock(BlockBehaviour.Properties.of(),"minecraft:redstone"));
+    public static final DeferredBlock<Block> WARP = BLOCKS.register("warp", (registryName) -> new WarpBlock(BlockBehaviour.Properties.of()));
+    public static void register(IEventBus eventBus) {
+        BLOCKS.register(eventBus);
+    }
+}
