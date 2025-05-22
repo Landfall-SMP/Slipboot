@@ -1,5 +1,7 @@
 {
   "itemGroup.slipboot": "Example Mod Tab",
   "block.slipboot.example_block": "Example Block",
-  "item.slipboot.example_item": "Example Item"
+  "item.slipboot.example_item": "Example Item",
+  "screen.slipboot.warp": "Warp Menu",
+  "block.slipboot.warp": "Warp"
 }

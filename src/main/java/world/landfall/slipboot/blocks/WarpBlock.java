@@ -1,5 +1,6 @@
 package world.landfall.slipboot.blocks;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -13,8 +14,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.fml.common.Mod;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import world.landfall.slipboot.ui.WarpMenu;
+import world.landfall.slipboot.ui.WarpScreen;
 
 public class WarpBlock extends RepairableBlock {
     public WarpBlock(Properties properties) {
@@ -35,22 +37,18 @@ public class WarpBlock extends RepairableBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         BrokenState brokenState = state.getValue(RepairableBlock.brokenState);
         ItemInteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        Minecraft minecraft = Minecraft.getInstance();
         switch(result) {
             case ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION:
-                if (level.isClientSide()) {
-                    if (brokenState == BrokenState.INTACT)
-                        player.swing(hand);
-
-                } else if (brokenState == BrokenState.INTACT) {
-                    player.openMenu(new SimpleMenuProvider(
-                            (id, inv, _player) -> new WarpMenu(id, inv),
-                            Component.translatable("menu.title.slipboot.warp")
-                    ));
+                if (brokenState == BrokenState.INTACT) {
+                    player.swing(hand);
+                    if (minecraft.player != null)
+                        minecraft.setScreen(new WarpScreen(pos, player));
+                    return ItemInteractionResult.CONSUME;
                 }
-                return ItemInteractionResult.CONSUME;
             case ItemInteractionResult.SUCCESS:
                 return ItemInteractionResult.CONSUME;
         }

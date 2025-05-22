@@ -74,7 +74,7 @@ public class Slipboot {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
     private void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(ModMenuTypes.WARP_MENU.get(), WarpScreen::new);
+        
     }
     private void commonSetup(final FMLCommonSetupEvent event) {
         // Some common setup code
