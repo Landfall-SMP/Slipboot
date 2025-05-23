@@ -1,5 +1,6 @@
 package world.landfall.slipboot;
 
+import de.bluecolored.bluemap.api.gson.MarkerGson;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Position;
@@ -8,7 +9,10 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
+import de.bluecolored.bluemap.api.BlueMapAPI;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +32,7 @@ public class WarpLocations extends SavedData {
         }
         public boolean equals(WarpLocation e) {
             return pos.equals(e.pos);
+
         }
     }
     private final List<WarpLocation> locations;
@@ -48,6 +53,7 @@ public class WarpLocations extends SavedData {
             newTag.putInt("id", x.id);
             locationsTag.add(newTag);
         }
+        BlueMapIntegration.saveMarkers();
         compoundTag.put("locations", locationsTag);
         return compoundTag;
     }
@@ -61,6 +67,8 @@ public class WarpLocations extends SavedData {
                 data.locations.add(location);
             }
         }
+
+        BlueMapIntegration.loadMarkers();
         return data;
     }
     public List<WarpLocation> getLocations() {
@@ -72,6 +80,7 @@ public class WarpLocations extends SavedData {
             if (x.equals(newLocation))
                 return -1;
         locations.add(newLocation);
+        BlueMapIntegration.addMarker(pos, name, newLocation.id);
         this.setDirty();
         return newLocation.id;
     }
@@ -89,6 +98,7 @@ public class WarpLocations extends SavedData {
         for (int i = 0; i < locations.size(); i++)
             if (locations.get(i).id == id) {
                 locations.remove(i);
+                BlueMapIntegration.removeMarker(id);
                 this.setDirty();
                 return true;
             }
@@ -98,7 +108,7 @@ public class WarpLocations extends SavedData {
         for (int i = 0; i < locations.size(); i++)
             if (locations.get(i).id == id) {
                 locations.get(i).name = name;
-                System.out.println("Set name of " + id + " to " + name);
+                BlueMapIntegration.setname(id, name);
                 this.setDirty();
                 return true;
             }

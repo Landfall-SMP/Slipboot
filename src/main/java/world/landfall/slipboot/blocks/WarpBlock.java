@@ -71,6 +71,7 @@ public class WarpBlock extends RepairableBlock {
                         if (locationData != null && !level.isClientSide()) {
                             locationData.setName(locationData.getId(pos), stack.getComponents().get(DataComponents.CUSTOM_NAME).getString());
                             stack.shrink(1);
+
                         }
 
                     } else if (minecraft.player != null)
