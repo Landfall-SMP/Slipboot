@@ -1,0 +1,90 @@
+---- Minecraft Crash Report ----
+// Ooh. Shiny.
+
+Time: 2025-05-22 21:26:55
+Description: Exception in server tick loop
+
+java.util.NoSuchElementException: null
+	at java.base/java.util.ArrayList.getLast(ArrayList.java:454) ~[?:?] {}
+	at TRANSFORMER/slipboot@1.0-SNAPSHOT/world.landfall.slipboot.WarpLocations.addLocation(WarpLocations.java:71) ~[%23179!/:?] {re:classloading}
+	at TRANSFORMER/slipboot@1.0-SNAPSHOT/world.landfall.slipboot.Slipboot.onServerStarting(Slipboot.java:120) ~[%23179!/:?] {re:classloading}
+	at MC-BOOTSTRAP/net.neoforged.bus/net.neoforged.bus.EventBus.post(EventBus.java:350) ~[bus-8.0.2.jar%23138!/:?] {}
+	at MC-BOOTSTRAP/net.neoforged.bus/net.neoforged.bus.EventBus.post(EventBus.java:315) ~[bus-8.0.2.jar%23138!/:?] {}
+	at TRANSFORMER/neoforge@21.1.172/net.neoforged.neoforge.server.ServerLifecycleHooks.handleServerStarting(ServerLifecycleHooks.java:109) ~[neoforge-21.1.172.jar%23178!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.client.server.IntegratedServer.initServer(IntegratedServer.java:81) ~[neoforge-21.1.172.jar%23177!/:?] {re:classloading,pl:runtimedistcleaner:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:676) ~[neoforge-21.1.172.jar%23177!/:?] {re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:267) ~[neoforge-21.1.172.jar%23177!/:?] {re:classloading,pl:accesstransformer:B}
+	at java.base/java.lang.Thread.run(Thread.java:1583) [?:?] {}
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- System Details --
+Details:
+	Minecraft Version: 1.21.1
+	Minecraft Version ID: 1.21.1
+	Operating System: Linux (amd64) version 6.14.2-arch1-1
+	Java Version: 21.0.6, Arch Linux
+	Java VM Version: OpenJDK 64-Bit Server VM (mixed mode, sharing), Arch Linux
+	Memory: 195683840 bytes (186 MiB) / 901775360 bytes (860 MiB) up to 4081057792 bytes (3892 MiB)
+	CPUs: 8
+	Processor Vendor: GenuineIntel
+	Processor Name: 11th Gen Intel(R) Core(TM) i7-1195G7 @ 2.90GHz
+	Identifier: Intel64 Family 6 Model 140 Stepping 2
+	Microarchitecture: Tiger Lake
+	Frequency (GHz): 2.90
+	Number of physical packages: 1
+	Number of physical CPUs: 4
+	Number of logical CPUs: 8
+	Graphics card #0 name: TigerLake-LP GT2 [Iris Xe Graphics]
+	Graphics card #0 vendor: Intel Corporation (0x8086)
+	Graphics card #0 VRAM (MiB): 256.00
+	Graphics card #0 deviceId: 0x9a49
+	Graphics card #0 versionInfo: unknown
+	Graphics card #1 name: Navi 33 [Radeon RX 7600/7600 XT/7600M XT/7600S/7700S / PRO W7600]
+	Graphics card #1 vendor: Advanced Micro Devices, Inc. [AMD/ATI] (0x1002)
+	Graphics card #1 VRAM (MiB): 258.00
+	Graphics card #1 deviceId: 0x7480
+	Graphics card #1 versionInfo: unknown
+	Virtual memory max (MiB): 7783.77
+	Virtual memory used (MiB): 9458.96
+	Swap memory total (MiB): 0.00
+	Swap memory used (MiB): 0.00
+	Space in storage for jna.tmpdir (MiB): <path not set>
+	Space in storage for org.lwjgl.system.SharedLibraryExtractPath (MiB): <path not set>
+	Space in storage for io.netty.native.workdir (MiB): <path not set>
+	Space in storage for java.io.tmpdir (MiB): available: 7759.44, total: 7783.77
+	Space in storage for workdir (MiB): available: 693327.50, total: 932992.13
+	JVM Flags: 0 total; 
+	Server Running: true
+	Player Count: 0 / 8; []
+	Active Data Packs: vanilla, mod_data, mod/neoforge, mod/slipboot
+	Available Data Packs: bundle, trade_rebalance, vanilla, mod/neoforge, mod/slipboot, mod_data
+	Enabled Feature Flags: minecraft:vanilla
+	World Generation: Stable
+	World Seed: -5247484142969709213
+	Type: Integrated Server (map_client.txt)
+	Is Modded: Definitely; Client brand changed to 'neoforge'; Server brand changed to 'neoforge'
+	Launched Version: 21.1.172
+	ModLauncher: 11.0.4+main.d2e20e43
+	ModLauncher launch target: forgeclientdev
+	ModLauncher services: 
+		sponge-mixin-0.15.2+mixin.0.8.7.jar mixin PLUGINSERVICE 
+		loader-4.0.39.jar slf4jfixer PLUGINSERVICE 
+		loader-4.0.39.jar runtime_enum_extender PLUGINSERVICE 
+		at-modlauncher-10.0.1.jar accesstransformer PLUGINSERVICE 
+		loader-4.0.39.jar runtimedistcleaner PLUGINSERVICE 
+		modlauncher-11.0.4.jar mixin TRANSFORMATIONSERVICE 
+		modlauncher-11.0.4.jar fml TRANSFORMATIONSERVICE 
+	FML Language Providers: 
+		javafml@4.0
+		lowcodefml@4.0
+		minecraft@4.0
+	Mod List: 
+		neoforge-21.1.172.jar                             |Minecraft                     |minecraft                     |1.21.1              |Manifest: NOSIGNATURE
+		neoforge-21.1.172.jar                             |NeoForge                      |neoforge                      |21.1.172            |Manifest: NOSIGNATURE
+		main                                              |Slipboot                      |slipboot                      |1.0-SNAPSHOT        |Manifest: NOSIGNATURE
+	Crash Report UUID: 4be86f02-69ed-42da-b5b7-c86ef61983b5
+	FML: 4.0.39
+	NeoForge: 21.1.172

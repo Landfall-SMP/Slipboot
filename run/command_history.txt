@@ -3,3 +3,17 @@
 /gamemode survival
 /setblock ~ ~ ~ slipboot:repairable_block
 /setblock ~ ~ ~ slipboot:warp
+/give @a minecraft:wooden_pickaxe
+/gamemode creative
+/setblock ~ ~ ~ slipboot:warp
+/give @a slipboot:warp
+/gamemode survival
+/gamemode creative
+/gamemode survival
+/effect give @a minecraft:haste infinite 3
+/gamemode creative
+/give @a slipboot:warp 64
+/gamemode survival
+/gamemode creative
+/data get storage
+/data get entity Dev
