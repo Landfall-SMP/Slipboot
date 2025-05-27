@@ -17,3 +17,29 @@
 /gamemode creative
 /data get storage
 /data get entity Dev
+/gamemode survival
+/slipboot
+/slipboot a
+/slipboot rename
+/slipboot rename a
+/slipboot
+/slipboot search awawa
+/gamemode creative
+/slipboot search womp
+/clear
+/slipboot search awawa
+/slipboot search womp
+/slipboot rename 1 wenomechainasuma
+/slipboot rename 1
+/slipboot rename 1 wenomechainasuma a
+/slipboot rename 1 wenomechainasuma
+/slipboot rename 0 wenomechainasuma
+/slipboot rename 1 a
+/slipboot rename 1 womp
+/slipboot search awawa
+/slipboot search womp
+/slipboot rename 0 wenomechainasua
+/slipboot search wenomechainasua
+/slipboot rename 2 welp
+/kill @e[type=!minecraft:player]
+/gamerule doMobSpawning false

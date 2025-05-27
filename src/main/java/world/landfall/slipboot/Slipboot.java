@@ -112,6 +112,8 @@ public class Slipboot {
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+        BlueMapIntegration.init();
+        ModCommands.register(event.getServer().createCommandSourceStack().dispatcher());
 
         DimensionDataStorage dataStorage = Objects.requireNonNull(event.getServer().getLevel(Level.OVERWORLD)).getDataStorage();
         SavedData.Factory<WarpLocations> factory = new SavedData.Factory<>(WarpLocations::create, WarpLocations::load);

@@ -53,7 +53,7 @@ public class WarpLocations extends SavedData {
             newTag.putInt("id", x.id);
             locationsTag.add(newTag);
         }
-        BlueMapIntegration.saveMarkers();
+
         compoundTag.put("locations", locationsTag);
         return compoundTag;
     }
@@ -67,8 +67,8 @@ public class WarpLocations extends SavedData {
                 data.locations.add(location);
             }
         }
-
-        BlueMapIntegration.loadMarkers();
+        for (WarpLocation x : data.locations)
+            BlueMapIntegration.addMarker(x.pos, x.name, x.id);
         return data;
     }
     public List<WarpLocation> getLocations() {
@@ -88,6 +88,7 @@ public class WarpLocations extends SavedData {
         for (int i = 0; i < locations.size(); i++) {
             if (locations.get(i).id == id) {
                 locations.get(i).active = active;
+                BlueMapIntegration.setName(id, locations.get(i).name, active);
                 this.setDirty();
                 return true;
             }
@@ -108,7 +109,7 @@ public class WarpLocations extends SavedData {
         for (int i = 0; i < locations.size(); i++)
             if (locations.get(i).id == id) {
                 locations.get(i).name = name;
-                BlueMapIntegration.setname(id, name);
+                BlueMapIntegration.setName(id, name, locations.get(i).active);
                 this.setDirty();
                 return true;
             }
@@ -117,6 +118,12 @@ public class WarpLocations extends SavedData {
     public int getId(BlockPos pos) {
         for (WarpLocation x : locations)
             if (x.pos.equals(pos))
+                return x.id;
+        return -1;
+    }
+    public int search(String name) {
+        for (WarpLocation x : locations)
+            if (x.name.equals(name))
                 return x.id;
         return -1;
     }
