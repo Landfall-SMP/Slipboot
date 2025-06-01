@@ -23,12 +23,20 @@ import java.util.List;
 import java.util.Set;
 
 public class WarpLocations extends SavedData {
+
+    public static final String[] dimensions = {"minecraft:overworld", "minecraft:the_nether", "minecraft:the_end"};
+    public static final int[][] cost = {
+            {0, 1, 2},
+            {1, 0, 3},
+            {2, 3, 0},
+    };
+
     public static class WarpLocation {
-        String name;
-        int id;
-        BlockPos pos;
-        boolean active;
-        String level;
+        public String name;
+        public int id;
+        public BlockPos pos;
+        public boolean active;
+        public String level;
         public WarpLocation(String name, BlockPos pos, int id, boolean active, String level) {
             this.name = name;
             this.pos = pos;
@@ -48,6 +56,16 @@ public class WarpLocations extends SavedData {
     public static WarpLocations create() {
         return new WarpLocations();
     }
+
+    public static int getCost(String a, String b) {
+        for (int i = 0; i < dimensions.length; i++)
+            if (dimensions[i].equals(a))
+                for (int j = 0; j < dimensions.length; j++)
+                    if (dimensions[j].equals(b))
+                        return cost[i][j];
+        return 0;
+    }
+
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, HolderLookup.@NotNull Provider provider) {
         ListTag locationsTag = new ListTag();

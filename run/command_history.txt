@@ -43,3 +43,6 @@
 /slipboot rename 2 welp
 /kill @e[type=!minecraft:player]
 /gamerule doMobSpawning false
+/give @a slipboot:repairable_block
+/give @a slipboot:w
+/give @a slipboot:warp

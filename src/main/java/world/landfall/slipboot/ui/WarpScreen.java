@@ -1,13 +1,21 @@
 package world.landfall.slipboot.ui;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.font.FontSet;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
+import world.landfall.slipboot.Slipboot;
+import world.landfall.slipboot.WarpLocations;
+
+import java.util.List;
 
 public class WarpScreen extends Screen {
     private static final class Layout {
@@ -47,6 +55,7 @@ public class WarpScreen extends Screen {
     }
     private final Player player;
     private final BlockPos pos;
+    private static final List<WarpLocations.WarpLocation> locations = Slipboot.locationData.getLocations();
     public WarpScreen(BlockPos pos, Player player) {
         super(Component.translatable("screen.slipboot.warp"));
         this.minecraft = Minecraft.getInstance();
@@ -56,13 +65,92 @@ public class WarpScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+        int height = guiGraphics.guiHeight();
+        int width = guiGraphics.guiWidth();
+        int boxHeight = 300;
+        int boxWidth = 300;
+
+        //guiGraphics.fill((width-boxWidth)/2, (height-boxHeight)/2, (width+boxWidth)/2, (height+boxHeight)/2, Colors.PANEL_BACKGROUND);
     }
 
     @Override
     protected void init() {
         super.init();
+//        this.addRenderableWidget(Button.builder(Component.translatable("gui.warp.button.test"), new Button.OnPress() {
+//            @Override
+//            public void onPress(Button button) {
+//                System.out.println("test");
+//            }
+//        }).build());
+        LocationListWidget locationListWidget = new LocationListWidget(Minecraft.getInstance(), 300, 300, (this.width-300)/2, (this.height-300)/2, 20);
+        this.addRenderableWidget(locationListWidget);
+        for (int i = 0; i < locations.size(); i++) {
+            WarpLocations.WarpLocation location = locations.get(i);
+            locationListWidget.addEntry(new LocationListWidget.Entry());
+
+        }
+        Button button = new Button.Builder(Component.literal("Go"), new Button.OnPress() {
+            @Override
+            public void onPress(Button button) {
+
+                for (WarpLocations.WarpLocation x : Slipboot.locationData.getLocations()) {
+                    if (locationListWidget.getSelected() != null && x.id == locationListWidget.getSelected().locationID && Minecraft.getInstance().player != null) {
+
+                        Minecraft.getInstance().player.moveTo(x.pos.above(), 0, 0);
+                        onClose();
+                    }
+                }
+            }
+        }).build();
+        button.setX((this.width-150)/2);
+        button.setY((this.height-20)/2+165);
+        this.addRenderableWidget(button);
+
+    }
+    private static class LocationListWidget extends ObjectSelectionList<LocationListWidget.Entry> {
+
+        public LocationListWidget(Minecraft minecraft, int width, int height, int x, int y, int itemHeight) {
+            super(minecraft, width, height, y, itemHeight);
+            this.setX(x);
+        }
+
+        public int addEntry(@NotNull Entry e) {
+            return super.addEntry(e);
+
+        }
+
+        @Override
+        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+        }
+
+        @Override
+        protected void renderDecorations(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+            super.renderDecorations(guiGraphics, mouseX, mouseY);
+        }
+
+        @Override
+        public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+
+        }
+        protected static class Entry extends ObjectSelectionList.Entry<Entry> {
+            public int locationID = -1;
+            public Entry() {
+                super();
+            }
+            @Override
+            public void render(GuiGraphics guiGraphics, int i, int i1, int i2, int i3, int i4, int i5, int i6, boolean b, float v) {
+                guiGraphics.drawString(Minecraft.getInstance().font, WarpScreen.locations.get(i).name, i2+2, i1+4, Colors.TEXT_COLOR);
+                locationID = WarpScreen.locations.get(i).id;
+            }
+
+            @Override
+            public Component getNarration() {
+                return Component.literal("Womp womp");
+
+            }
+        }
 
     }
 }
