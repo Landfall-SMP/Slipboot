@@ -48,6 +48,7 @@ public class WarpScreen extends Screen {
         static final int SCROLLBAR_TRACK = 0x80333333;
         static final int SCROLLBAR_THUMB = 0xFFBBBBBB;
         static final int TEXT_COLOR = 0xFFFFFF;
+        static final int GRAY_TEXT_COLOR = 0xAAAAAA;
         static final int ACTIVE_CHARACTER = 0x00FF00;
         static final int SWITCH_BUTTON = 0x66CCFF;
         static final int DELETE_BUTTON = 0xFF0000;
@@ -83,28 +84,29 @@ public class WarpScreen extends Screen {
 //                System.out.println("test");
 //            }
 //        }).build());
-        LocationListWidget locationListWidget = new LocationListWidget(Minecraft.getInstance(), 300, 300, (this.width-300)/2, (this.height-300)/2, 20);
+        LocationListWidget locationListWidget = new LocationListWidget(Minecraft.getInstance(), 300, 200, (this.width-300)/2, (this.height-200)/2, 20);
         this.addRenderableWidget(locationListWidget);
         for (int i = 0; i < locations.size(); i++) {
             WarpLocations.WarpLocation location = locations.get(i);
             locationListWidget.addEntry(new LocationListWidget.Entry());
 
         }
-        Button button = new Button.Builder(Component.literal("Go"), new Button.OnPress() {
+        Button button = new Button.Builder(Component.translatable("gui.warp.button.warp"), new Button.OnPress() {
             @Override
             public void onPress(Button button) {
 
                 for (WarpLocations.WarpLocation x : Slipboot.locationData.getLocations()) {
                     if (locationListWidget.getSelected() != null && x.id == locationListWidget.getSelected().locationID && Minecraft.getInstance().player != null) {
-
-                        Minecraft.getInstance().player.moveTo(x.pos.above(), 0, 0);
-                        onClose();
+                        if ( !WarpScreen.locations.get(locationListWidget.getSelected().locationID).pos.equals(pos) && WarpScreen.locations.get(locationListWidget.getSelected().locationID).active) {
+                            Minecraft.getInstance().player.moveTo(x.pos.above(), 0, 0);
+                            onClose();
+                        }
                     }
                 }
             }
         }).build();
         button.setX((this.width-150)/2);
-        button.setY((this.height-20)/2+165);
+        button.setY((this.height-20)/2+120);
         this.addRenderableWidget(button);
 
     }
@@ -141,8 +143,13 @@ public class WarpScreen extends Screen {
             }
             @Override
             public void render(GuiGraphics guiGraphics, int i, int i1, int i2, int i3, int i4, int i5, int i6, boolean b, float v) {
-                guiGraphics.drawString(Minecraft.getInstance().font, WarpScreen.locations.get(i).name, i2+2, i1+4, Colors.TEXT_COLOR);
-                locationID = WarpScreen.locations.get(i).id;
+                WarpLocations.WarpLocation location = WarpScreen.locations.get(i);
+                guiGraphics.drawString(Minecraft.getInstance().font, WarpScreen.locations.get(i).name, i2+2, i1+4,
+                        location.active ?
+                        Colors.TEXT_COLOR :
+                        Colors.GRAY_TEXT_COLOR
+                );
+                locationID = location.id;
             }
 
             @Override

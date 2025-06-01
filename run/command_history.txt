@@ -46,3 +46,4 @@
 /give @a slipboot:repairable_block
 /give @a slipboot:w
 /give @a slipboot:warp
+/gamemode survival
