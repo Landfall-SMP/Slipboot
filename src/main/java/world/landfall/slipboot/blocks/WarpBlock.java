@@ -21,6 +21,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import world.landfall.slipboot.Slipboot;
 import world.landfall.slipboot.WarpLocations;
 import world.landfall.slipboot.ui.WarpScreen;
 
@@ -38,7 +39,8 @@ public class WarpBlock extends RepairableBlock {
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (!level.isClientSide())
-            locationData.addLocation("", pos, state.getValue(brokenState) == BrokenState.INTACT);
+            locationData.addLocation("", pos, state.getValue(brokenState) == BrokenState.INTACT, level.dimension().location().toString());
+
 
     }
 

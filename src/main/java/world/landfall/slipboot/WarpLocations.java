@@ -1,12 +1,16 @@
 package world.landfall.slipboot;
 
 import de.bluecolored.bluemap.api.gson.MarkerGson;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Position;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
 import de.bluecolored.bluemap.api.BlueMapAPI;
@@ -24,11 +28,13 @@ public class WarpLocations extends SavedData {
         int id;
         BlockPos pos;
         boolean active;
-        public WarpLocation(String name, BlockPos pos, int id, boolean active) {
+        String level;
+        public WarpLocation(String name, BlockPos pos, int id, boolean active, String level) {
             this.name = name;
             this.pos = pos;
             this.active = active;
             this.id = id;
+            this.level = level;
         }
         public boolean equals(WarpLocation e) {
             return pos.equals(e.pos);
@@ -51,6 +57,7 @@ public class WarpLocations extends SavedData {
             newTag.putIntArray("pos",new int[] {x.pos.getX(), x.pos.getY(), x.pos.getZ()});
             newTag.putBoolean("active", x.active);
             newTag.putInt("id", x.id);
+            newTag.putString("level", x.level.toString());
             locationsTag.add(newTag);
         }
 
@@ -63,7 +70,7 @@ public class WarpLocations extends SavedData {
             if (x instanceof CompoundTag y) {
                 int[] posArray = y.getIntArray("pos");
                 BlockPos pos = BlockPos.containing(posArray[0], posArray[1], posArray[2]);
-                WarpLocation location = new WarpLocation(y.getString("name"),pos,y.getInt("id"), y.getBoolean("active"));
+                WarpLocation location = new WarpLocation(y.getString("name"),pos,y.getInt("id"), y.getBoolean("active"), y.getString("level"));
                 data.locations.add(location);
             }
         }
@@ -74,8 +81,8 @@ public class WarpLocations extends SavedData {
     public List<WarpLocation> getLocations() {
         return locations;
     }
-    public int addLocation(String name, BlockPos pos, boolean active) {
-        WarpLocation newLocation = new WarpLocation(name, pos, !locations.isEmpty() ? locations.getLast().id+1 : 0, active);
+    public int addLocation(String name, BlockPos pos, boolean active, String level) {
+        WarpLocation newLocation = new WarpLocation(name, pos, !locations.isEmpty() ? locations.getLast().id+1 : 0, active, level);
         for (WarpLocation x : locations)
             if (x.equals(newLocation))
                 return -1;
