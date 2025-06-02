@@ -47,3 +47,4 @@
 /give @a slipboot:w
 /give @a slipboot:warp
 /gamemode survival
+/give @a redstone 64

@@ -152,4 +152,10 @@ public class WarpLocations extends SavedData {
                 return x.id;
         return -1;
     }
+    public WarpLocation getLocation(int id) {
+        for (WarpLocation x : locations)
+            if (x.id == id)
+                return x;
+        return null;
+    }
 }

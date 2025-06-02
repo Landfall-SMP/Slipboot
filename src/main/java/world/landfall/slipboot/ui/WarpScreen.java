@@ -57,6 +57,7 @@ public class WarpScreen extends Screen {
     private final Player player;
     private final BlockPos pos;
     private static final List<WarpLocations.WarpLocation> locations = Slipboot.locationData.getLocations();
+    private LocationListWidget locationListWidget;
     public WarpScreen(BlockPos pos, Player player) {
         super(Component.translatable("screen.slipboot.warp"));
         this.minecraft = Minecraft.getInstance();
@@ -66,6 +67,7 @@ public class WarpScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        if (!Minecraft.getInstance().player.level().isClientSide()) return;
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         int height = guiGraphics.guiHeight();
         int width = guiGraphics.guiWidth();
@@ -74,6 +76,7 @@ public class WarpScreen extends Screen {
 
         //guiGraphics.fill((width-boxWidth)/2, (height-boxHeight)/2, (width+boxWidth)/2, (height+boxHeight)/2, Colors.PANEL_BACKGROUND);
     }
+
 
     @Override
     protected void init() {
@@ -84,12 +87,13 @@ public class WarpScreen extends Screen {
 //                System.out.println("test");
 //            }
 //        }).build());
-        LocationListWidget locationListWidget = new LocationListWidget(Minecraft.getInstance(), 300, 200, (this.width-300)/2, (this.height-200)/2, 20);
+        locationListWidget = new LocationListWidget(Minecraft.getInstance(), 300, 200, (this.width-300)/2, (this.height-200)/2, 20);
         this.addRenderableWidget(locationListWidget);
         for (int i = 0; i < locations.size(); i++) {
             WarpLocations.WarpLocation location = locations.get(i);
-            locationListWidget.addEntry(new LocationListWidget.Entry());
-
+            if (!pos.equals(location.pos)) {
+                locationListWidget.addEntry(new LocationListWidget.Entry(location.id));
+            }
         }
         Button button = new Button.Builder(Component.translatable("gui.warp.button.warp"), new Button.OnPress() {
             @Override
@@ -137,19 +141,20 @@ public class WarpScreen extends Screen {
 
         }
         protected static class Entry extends ObjectSelectionList.Entry<Entry> {
-            public int locationID = -1;
-            public Entry() {
+            public final int locationID;
+            public Entry(int id) {
                 super();
+                locationID = id;
             }
             @Override
             public void render(GuiGraphics guiGraphics, int i, int i1, int i2, int i3, int i4, int i5, int i6, boolean b, float v) {
-                WarpLocations.WarpLocation location = WarpScreen.locations.get(i);
-                guiGraphics.drawString(Minecraft.getInstance().font, WarpScreen.locations.get(i).name, i2+2, i1+4,
+                if (!Minecraft.getInstance().player.level().isClientSide()) return;
+                WarpLocations.WarpLocation location = Slipboot.locationData.getLocation(locationID);
+                guiGraphics.drawString(Minecraft.getInstance().font, location.name, i2+2, i1+4,
                         location.active ?
                         Colors.TEXT_COLOR :
                         Colors.GRAY_TEXT_COLOR
                 );
-                locationID = location.id;
             }
 
             @Override

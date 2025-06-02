@@ -76,7 +76,7 @@ public class WarpBlock extends RepairableBlock {
 
                         }
 
-                    } else if (minecraft.player != null)
+                    } else if (minecraft.player != null && level.isClientSide())
                         minecraft.setScreen(new WarpScreen(pos, player));
                     player.swing(hand);
                     return ItemInteractionResult.CONSUME;
