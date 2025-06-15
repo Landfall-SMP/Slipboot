@@ -9,13 +9,23 @@ import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.portal.DimensionTransition;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 import world.landfall.slipboot.Slipboot;
 import world.landfall.slipboot.WarpLocations;
+import world.landfall.slipboot.networking.WarpPacket;
 
 import java.util.List;
+import java.util.Set;
 
 public class WarpScreen extends Screen {
     private static final class Layout {
@@ -100,9 +110,25 @@ public class WarpScreen extends Screen {
             public void onPress(Button button) {
 
                 for (WarpLocations.WarpLocation x : Slipboot.locationData.getLocations()) {
-                    if (locationListWidget.getSelected() != null && x.id == locationListWidget.getSelected().locationID && Minecraft.getInstance().player != null) {
+                    if (locationListWidget.getSelected() != null && x.id == locationListWidget.getSelected().locationID) {
                         if ( !WarpScreen.locations.get(locationListWidget.getSelected().locationID).pos.equals(pos) && WarpScreen.locations.get(locationListWidget.getSelected().locationID).active) {
-                            Minecraft.getInstance().player.moveTo(x.pos.above(), 0, 0);
+                            var server = player.getServer();
+                            var levelResourceLocation = ResourceLocation.parse(x.level);
+                            var newPos = x.pos.above();
+
+                            PacketDistributor.sendToServer(new WarpPacket(player.getName().getString(),new Vector3f(newPos.getX() + .5f, newPos.getY(), newPos.getZ() + .5f), levelResourceLocation.toString()));
+//                            System.out.println("Got here 1 " + server);
+//                            if (server != null)
+//                                server.getAllLevels().forEach((level) -> {
+//                                    System.out.println("Got here 2");
+//                                    if (level.dimension().location().equals(levelResourceLocation)) {
+//                                        System.out.println("Got here 3");
+//                                        var newPos = x.pos.above();
+//
+//                                        Minecraft.getInstance().player.teleportTo(level, newPos.getX(), newPos.getY(), newPos.getZ(), Set.of(),0, 0);
+//                                    }
+//                                });
+                            //Minecraft.getInstance().player.moveTo(x.pos.above(), 0, 0);
                             onClose();
                         }
                     }

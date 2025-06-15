@@ -1,6 +1,0 @@
-{
-    "variants": {
-        "broken_state=intact": {"model": "slipboot:block/repairable_block_intact"},
-        "broken_state=broken": {"model": "slipboot:block/repairable_block_broken"}
-    }
-}

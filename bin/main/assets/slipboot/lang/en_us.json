@@ -1,5 +1,8 @@
 {
-    "item.slipboot.repair_item": "Repair Item",
-    "block.slipboot.repairable_block": "Repairable Block",
-    "block.slipboot.warp": "Warp"
+  "itemGroup.slipboot": "Example Mod Tab",
+  "block.slipboot.example_block": "Example Block",
+  "item.slipboot.example_item": "Example Item",
+  "screen.slipboot.warp": "Warp Menu",
+  "block.slipboot.warp": "Warp",
+  "gui.warp.button.warp": "Warp"
 }
