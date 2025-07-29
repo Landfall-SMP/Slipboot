@@ -1,5 +1,6 @@
 package world.landfall.slipboot.blocks;
 
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -26,6 +27,7 @@ import world.landfall.slipboot.WarpLocations;
 import world.landfall.slipboot.ui.WarpScreen;
 
 public class WarpBlock extends RepairableBlock {
+    private static String[] randomNames = {"This place", "That place", "That other place", "America", "Antarctica"};
     private static WarpLocations locationData;
     public WarpBlock(Properties properties) {
         super(properties
@@ -38,8 +40,9 @@ public class WarpBlock extends RepairableBlock {
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
+
         if (!level.isClientSide())
-            locationData.addLocation("", pos, state.getValue(brokenState) == BrokenState.INTACT, level.dimension().location().toString());
+            locationData.addLocation(randomNames[(int)(Math.random() * randomNames.length)], pos, state.getValue(brokenState) == BrokenState.INTACT, level.dimension().location().toString());
 
 
     }
