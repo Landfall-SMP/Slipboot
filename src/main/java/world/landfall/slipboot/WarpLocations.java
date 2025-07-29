@@ -19,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -49,9 +50,9 @@ public class WarpLocations extends SavedData {
 
         }
     }
-    private final List<WarpLocation> locations;
+    private final HashMap<Integer, WarpLocation> locations;
     public WarpLocations() {
-        locations = new ArrayList<WarpLocation>();
+        locations = new HashMap<Integer, WarpLocation>();
     }
     public static WarpLocations create() {
         return new WarpLocations();
@@ -69,7 +70,7 @@ public class WarpLocations extends SavedData {
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, HolderLookup.@NotNull Provider provider) {
         ListTag locationsTag = new ListTag();
-        for (WarpLocation x : locations) {
+        for (WarpLocation x : locations.values()) {
             CompoundTag newTag = new CompoundTag();
             newTag.putString("name", x.name);
             newTag.putIntArray("pos",new int[] {x.pos.getX(), x.pos.getY(), x.pos.getZ()});
@@ -89,71 +90,61 @@ public class WarpLocations extends SavedData {
                 int[] posArray = y.getIntArray("pos");
                 BlockPos pos = BlockPos.containing(posArray[0], posArray[1], posArray[2]);
                 WarpLocation location = new WarpLocation(y.getString("name"),pos,y.getInt("id"), y.getBoolean("active"), y.getString("level"));
-                data.locations.add(location);
+                data.locations.put(location.id, location);
             }
         }
-        for (WarpLocation x : data.locations)
+        for (WarpLocation x : data.locations.values())
             BlueMapIntegration.addMarker(x.pos, x.name, x.id);
         return data;
     }
-    public List<WarpLocation> getLocations() {
+    public HashMap<Integer, WarpLocation> getLocations() {
         return locations;
     }
+    private int getLargestID(HashMap<Integer, WarpLocation> map) {
+        int max = -1;
+        for (WarpLocation x : map.values())
+            if (x.id > max) max = x.id;
+        return max;
+    }
     public int addLocation(String name, BlockPos pos, boolean active, String level) {
-        WarpLocation newLocation = new WarpLocation(name, pos, !locations.isEmpty() ? locations.getLast().id+1 : 0, active, level);
-        for (WarpLocation x : locations)
+        WarpLocation newLocation = new WarpLocation(name, pos, !locations.isEmpty() ? getLargestID(locations)+1 : 0, active, level);
+        for (WarpLocation x : locations.values())
             if (x.equals(newLocation))
                 return -1;
-        locations.add(newLocation);
+        locations.put(newLocation.id, newLocation);
         BlueMapIntegration.addMarker(pos, name, newLocation.id);
         this.setDirty();
         return newLocation.id;
     }
     public boolean setActive(int id, boolean active) {
-        for (int i = 0; i < locations.size(); i++) {
-            if (locations.get(i).id == id) {
-                locations.get(i).active = active;
-                BlueMapIntegration.setName(id, locations.get(i).name, active);
-                this.setDirty();
-                return true;
-            }
-        }
-        return false;
+        this.setDirty();
+        locations.get(id).active = active;
+        return true;
     }
     public boolean removeLocation(int id) {
-        for (int i = 0; i < locations.size(); i++)
-            if (locations.get(i).id == id) {
-                locations.remove(i);
-                BlueMapIntegration.removeMarker(id);
-                this.setDirty();
-                return true;
-            }
-        return false;
+        this.setDirty();
+        BlueMapIntegration.removeMarker(id);
+        return locations.remove(id)!=null;
     }
     public boolean setName(int id, String name) {
-        for (int i = 0; i < locations.size(); i++)
-            if (locations.get(i).id == id) {
-                locations.get(i).name = name;
-                BlueMapIntegration.setName(id, name, locations.get(i).active);
-                this.setDirty();
-                return true;
-            }
-        return false;
+        this.setDirty();
+        locations.get(id).name = name;
+        return true;
     }
     public int getId(BlockPos pos) {
-        for (WarpLocation x : locations)
+        for (WarpLocation x : locations.values())
             if (x.pos.equals(pos))
                 return x.id;
         return -1;
     }
     public int search(String name) {
-        for (WarpLocation x : locations)
+        for (WarpLocation x : locations.values())
             if (x.name.equals(name))
                 return x.id;
         return -1;
     }
     public WarpLocation getLocation(int id) {
-        for (WarpLocation x : locations)
+        for (WarpLocation x : locations.values())
             if (x.id == id)
                 return x;
         return null;

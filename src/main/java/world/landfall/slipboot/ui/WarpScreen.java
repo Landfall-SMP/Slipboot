@@ -24,6 +24,7 @@ import world.landfall.slipboot.Slipboot;
 import world.landfall.slipboot.WarpLocations;
 import world.landfall.slipboot.networking.WarpPacket;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -66,7 +67,7 @@ public class WarpScreen extends Screen {
     }
     private final Player player;
     private final BlockPos pos;
-    private static final List<WarpLocations.WarpLocation> locations = Slipboot.locationData.getLocations();
+    private static final HashMap<Integer, WarpLocations.WarpLocation> locations = Slipboot.locationData.getLocations();
     private LocationListWidget locationListWidget;
     public WarpScreen(BlockPos pos, Player player) {
         super(Component.translatable("screen.slipboot.warp"));
@@ -81,7 +82,7 @@ public class WarpScreen extends Screen {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         int height = guiGraphics.guiHeight();
         int width = guiGraphics.guiWidth();
-        int boxHeight = 300;
+        int boxHeight = 250;
         int boxWidth = 300;
 
         //guiGraphics.fill((width-boxWidth)/2, (height-boxHeight)/2, (width+boxWidth)/2, (height+boxHeight)/2, Colors.PANEL_BACKGROUND);
@@ -97,9 +98,9 @@ public class WarpScreen extends Screen {
 //                System.out.println("test");
 //            }
 //        }).build());
-        locationListWidget = new LocationListWidget(Minecraft.getInstance(), 300, 200, (this.width-300)/2, (this.height-200)/2, 20);
+        locationListWidget = new LocationListWidget(Minecraft.getInstance(), 300, 150, (this.width-300)/2, (this.height-200)/2, 20);
         this.addRenderableWidget(locationListWidget);
-        for (int i = 0; i < locations.size(); i++) {
+        for (Integer i : locations.keySet()) {
             WarpLocations.WarpLocation location = locations.get(i);
             if (!pos.equals(location.pos)) {
                 locationListWidget.addEntry(new LocationListWidget.Entry(location.id));
@@ -109,7 +110,7 @@ public class WarpScreen extends Screen {
             @Override
             public void onPress(Button button) {
 
-                for (WarpLocations.WarpLocation x : Slipboot.locationData.getLocations()) {
+                for (WarpLocations.WarpLocation x : Slipboot.locationData.getLocations().values()) {
                     if (locationListWidget.getSelected() != null && x.id == locationListWidget.getSelected().locationID) {
                         if ( !WarpScreen.locations.get(locationListWidget.getSelected().locationID).pos.equals(pos) && WarpScreen.locations.get(locationListWidget.getSelected().locationID).active) {
                             var server = player.getServer();
@@ -136,7 +137,7 @@ public class WarpScreen extends Screen {
             }
         }).build();
         button.setX((this.width-150)/2);
-        button.setY((this.height-20)/2+120);
+        button.setY((this.height-20)/2+70);
         this.addRenderableWidget(button);
 
     }
