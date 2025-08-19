@@ -52,7 +52,6 @@ public class BlueMapIntegration {
                 x.getMarkerSets().put("warp_locations", markerSet);
 
             }
-
         });
     }
     public static void setName(int id, String name) {
@@ -62,7 +61,6 @@ public class BlueMapIntegration {
         markerSet.get(id+"").setLabel(name);
         if (markerSet.get(id+"") instanceof HtmlMarker html)
             html.setHtml(makeHTML(name, active));
-        System.out.println(markerSet.get(id+"").getLabel());
     }
     public static void removeMarker(int id) {
         markerSet.remove(id+"");

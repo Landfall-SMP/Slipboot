@@ -51,7 +51,7 @@ public record WarpPacket(String playerName, Vector3f pos, String dimension) impl
                     new IPayloadHandler<WarpPacket>() {
                         @Override
                         public void handle(WarpPacket warpPacket, IPayloadContext iPayloadContext) {
-                            System.out.println("WOWWOW");
+                            Slipboot.LOGGER.info("Got warp packet from client");
                             iPayloadContext.player().getServer().getAllLevels().forEach((level) -> {
                                 if (level.dimension().location().equals(ResourceLocation.parse(warpPacket.dimension))) {
 

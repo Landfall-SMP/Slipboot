@@ -68,6 +68,7 @@ public class WarpBlock extends RepairableBlock {
         if (level.getBlockState(pos.above()).is(BuiltInRegistries.BLOCK.get(ResourceLocation.parse("minecraft:air")))) {
             level.setBlock(pos.above(), BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(Slipboot.MODID, "fake_top")).defaultBlockState(),Block.UPDATE_CLIENTS);
         }
+        Slipboot.LOGGER.info("Warp at " + pos.toString() + " created.");
     }
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
@@ -83,20 +84,19 @@ public class WarpBlock extends RepairableBlock {
     public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
         super.destroy(level, pos, state);
         // Likely destroyed in Creative, which bypasses the unbreakable code. Add code here for sound effects and bluemap handling
-        System.out.println("Destroyed");
         if (locationData != null && !level.isClientSide()) {
             locationData.removeLocation(locationData.getId(pos));
         }
         if (level.getBlockState(pos.above()).is(BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(Slipboot.MODID, "fake_top")))) {
             level.setBlock(pos.above(), BuiltInRegistries.BLOCK.get(ResourceLocation.parse("minecraft:air")).defaultBlockState(), Block.UPDATE_CLIENTS);
         }
+        Slipboot.LOGGER.info("Warp at " + pos.toString() + " removed.");
     }
 
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         boolean destroyed = super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
         if (!destroyed) {
-            System.out.println("Not destroyed");
             // Likely destroyed in Survival, meaning it only changed states. Add code here for sound effects and bluemap handling
             if (locationData != null && !level.isClientSide()) {
                 locationData.setActive(locationData.getId(pos), false);
@@ -109,6 +109,7 @@ public class WarpBlock extends RepairableBlock {
                 );
 
             }
+            Slipboot.LOGGER.info("Warp at " + pos.toString() + " broken.");
         }
         return destroyed;
     }
@@ -131,6 +132,7 @@ public class WarpBlock extends RepairableBlock {
                                 level.getBlockState(pos.above()).setValue(FakeTop.brokenState, FakeTop.BrokenState.INTACT);
 
                             }
+                            Slipboot.LOGGER.info("Warp at " + pos.toString() + " repaired.");
                         }
 
                     } else if (minecraft.player != null && level.isClientSide())

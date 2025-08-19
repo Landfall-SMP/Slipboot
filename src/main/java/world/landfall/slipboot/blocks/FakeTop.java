@@ -41,7 +41,6 @@ public class FakeTop extends Block {
             };
         }
     }
-    private static WarpLocations locationData;
     public static final VoxelShape SHAPE = Block.box(1, -16, 1, 15, 32 - 16, 15);
     public static final VoxelShape BROKEN_SHAPE = Block.box(1, -16, 1, 15, 21 - 16, 15);
     static final EnumProperty<FakeTop.BrokenState> brokenState = EnumProperty.create("fake_broken_state", FakeTop.BrokenState.class);
@@ -53,11 +52,7 @@ public class FakeTop extends Block {
                         .noOcclusion()
                         .destroyTime(4f)
         );
-        System.out.println("WOP");
         this.registerDefaultState(this.getStateDefinition().any().setValue(brokenState, BrokenState.INTACT));
-    }
-    public static void setLocationData(WarpLocations locations) {
-        locationData = locations;
     }
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
