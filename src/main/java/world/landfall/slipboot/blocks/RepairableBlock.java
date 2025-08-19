@@ -44,6 +44,7 @@ public class RepairableBlock extends BaseEntityBlock implements EntityBlock {
             };
         }
     }
+
     static final EnumProperty<BrokenState> brokenState = EnumProperty.create("broken_state", BrokenState.class);
     String repairItem;
     public RepairableBlock(Properties properties, String repairItem) {

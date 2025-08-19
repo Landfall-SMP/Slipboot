@@ -43,6 +43,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
+import world.landfall.slipboot.blocks.FakeTop;
 import world.landfall.slipboot.blocks.WarpBlock;
 import world.landfall.slipboot.ui.WarpScreen;
 
@@ -61,7 +62,7 @@ public class Slipboot {
 
     // Creates a creative tab with the id "slipboot:example_tab" for the example item, that is placed after the combat tab
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder().title(Component.translatable("itemGroup.slipboot")).withTabsBefore(CreativeModeTabs.COMBAT).icon(() -> ModItems.REPAIRABLE_BLOCK_ITEM.get().getDefaultInstance()).displayItems((parameters, output) -> {
-        output.accept(ModItems.REPAIRABLE_BLOCK_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+        output.accept(ModItems.WARP_BLOCK_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
     }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
@@ -119,6 +120,7 @@ public class Slipboot {
         SavedData.Factory<WarpLocations> factory = new SavedData.Factory<>(WarpLocations::create, WarpLocations::load);
         locationData = dataStorage.computeIfAbsent(factory, "warp_locations");
         WarpBlock.setLocationData(locationData);
+        FakeTop.setLocationData(locationData);
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

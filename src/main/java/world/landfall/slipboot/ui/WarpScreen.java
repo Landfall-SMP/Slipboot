@@ -115,7 +115,7 @@ public class WarpScreen extends Screen {
                         if ( !WarpScreen.locations.get(locationListWidget.getSelected().locationID).pos.equals(pos) && WarpScreen.locations.get(locationListWidget.getSelected().locationID).active) {
                             var server = player.getServer();
                             var levelResourceLocation = ResourceLocation.parse(x.level);
-                            var newPos = x.pos.above();
+                            var newPos = x.pos.above().above();
 
                             PacketDistributor.sendToServer(new WarpPacket(player.getName().getString(),new Vector3f(newPos.getX() + .5f, newPos.getY(), newPos.getZ() + .5f), levelResourceLocation.toString()));
 //                            System.out.println("Got here 1 " + server);
