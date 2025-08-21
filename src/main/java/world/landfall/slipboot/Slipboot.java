@@ -56,7 +56,7 @@ public class Slipboot {
     public static final String MODID = "slipboot";
     public static WarpLocations locationData;
     // Directly reference a slf4j logger
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "slipboot" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
@@ -94,13 +94,7 @@ public class Slipboot {
     }
     private void commonSetup(final FMLCommonSetupEvent event) {
         // Some common setup code
-        LOGGER.info("HELLO FROM COMMON SETUP");
-
-        if (Config.logDirtBlock) LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(Blocks.DIRT));
-
-        LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
-
-        Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
+        LOGGER.info("Common setup");
     }
 
     // Add the example block item to the building blocks tab
@@ -112,15 +106,15 @@ public class Slipboot {
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
-        LOGGER.info("HELLO from server starting");
-        BlueMapIntegration.init();
+        LOGGER.info("Setting up server");
+        if (Config.doBluemapIntegration)
+            BlueMapIntegration.init(event.getServer().getAllLevels());
         ModCommands.register(event.getServer().createCommandSourceStack().dispatcher());
 
         DimensionDataStorage dataStorage = Objects.requireNonNull(event.getServer().getLevel(Level.OVERWORLD)).getDataStorage();
         SavedData.Factory<WarpLocations> factory = new SavedData.Factory<>(WarpLocations::create, WarpLocations::load);
         locationData = dataStorage.computeIfAbsent(factory, "warp_locations");
         WarpBlock.setLocationData(locationData);
-        FakeTop.setLocationData(locationData);
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
