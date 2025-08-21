@@ -23,8 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -69,6 +68,7 @@ public class WarpBlock extends RepairableBlock {
             level.setBlock(pos.above(), BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(Slipboot.MODID, "fake_top")).defaultBlockState(),Block.UPDATE_CLIENTS);
         }
         Slipboot.LOGGER.info("Warp at " + pos.toString() + " created.");
+
     }
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
