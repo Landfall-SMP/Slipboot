@@ -107,7 +107,8 @@ public class Slipboot {
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
         LOGGER.info("Setting up server");
-        BlueMapIntegration.init(event.getServer().getAllLevels());
+        if (Config.doBluemapIntegration)
+            BlueMapIntegration.init(event.getServer().getAllLevels());
         ModCommands.register(event.getServer().createCommandSourceStack().dispatcher());
 
         DimensionDataStorage dataStorage = Objects.requireNonNull(event.getServer().getLevel(Level.OVERWORLD)).getDataStorage();

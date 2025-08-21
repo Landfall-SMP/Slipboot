@@ -93,8 +93,9 @@ public class WarpLocations extends SavedData {
                 data.locations.put(location.id, location);
             }
         }
-        for (WarpLocation x : data.locations.values())
-            BlueMapIntegration.addMarker(x.pos, x.name, x.id, ResourceLocation.parse(x.level));
+        if (Config.doBluemapIntegration)
+            for (WarpLocation x : data.locations.values())
+                BlueMapIntegration.addMarker(x.pos, x.name, x.id, ResourceLocation.parse(x.level));
         return data;
     }
     public HashMap<Integer, WarpLocation> getLocations() {
@@ -112,7 +113,8 @@ public class WarpLocations extends SavedData {
             if (x.equals(newLocation))
                 return -1;
         locations.put(newLocation.id, newLocation);
-        BlueMapIntegration.addMarker(pos, name, newLocation.id, ResourceLocation.parse(newLocation.level));
+        if (Config.doBluemapIntegration)
+            BlueMapIntegration.addMarker(pos, name, newLocation.id, ResourceLocation.parse(newLocation.level));
         this.setDirty();
         return newLocation.id;
     }
@@ -123,7 +125,8 @@ public class WarpLocations extends SavedData {
     }
     public boolean removeLocation(int id) {
         this.setDirty();
-        BlueMapIntegration.removeMarker(id, ResourceLocation.parse(locations.get(id).level));
+        if (Config.doBluemapIntegration)
+            BlueMapIntegration.removeMarker(id, ResourceLocation.parse(locations.get(id).level));
 
         return locations.remove(id)!=null;
     }
