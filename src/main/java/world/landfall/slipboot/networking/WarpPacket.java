@@ -7,6 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -20,6 +21,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import world.landfall.slipboot.Slipboot;
+import world.landfall.slipboot.integration.KarmaIntegration;
 
 import java.util.Set;
 
@@ -40,22 +42,27 @@ public record WarpPacket(String playerName, Vector3f pos, String dimension) impl
     public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
-    @EventBusSubscriber(modid = Slipboot.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents {
+    @EventBusSubscriber(modid = Slipboot.MODID, bus = EventBusSubscriber.Bus.MOD)
+    public static class ModEvents {
         @SubscribeEvent
         public static void register(final RegisterPayloadHandlersEvent event) {
             final PayloadRegistrar registrar = event.registrar("1");
-            registrar.playBidirectional(
+            registrar.playToServer(
                     WarpPacket.TYPE,
                     WarpPacket.STREAM_CODEC,
                     new IPayloadHandler<WarpPacket>() {
                         @Override
                         public void handle(WarpPacket warpPacket, IPayloadContext iPayloadContext) {
                             Slipboot.LOGGER.info("Got warp packet from client");
-                            iPayloadContext.player().getServer().getAllLevels().forEach((level) -> {
+                            Player player = iPayloadContext.player();
+                            player.getServer().getAllLevels().forEach((level) -> {
                                 if (level.dimension().location().equals(ResourceLocation.parse(warpPacket.dimension))) {
-
-                                    iPayloadContext.player().teleportTo(level, warpPacket.pos.x, warpPacket.pos.y, warpPacket.pos.z, Set.of(), 0, 0);
+                                    if (KarmaIntegration.chargePlayer(player, player.position(), new Vec3(warpPacket.pos), player.getCommandSenderWorld().dimension().location(), level.dimension().location())) {
+                                        iPayloadContext.player().teleportTo(level, warpPacket.pos.x, warpPacket.pos.y, warpPacket.pos.z, Set.of(), 0, 0);
+                                        Slipboot.LOGGER.info("Player granted a warp");
+                                    } else {
+                                        Slipboot.LOGGER.info("Player denied a warp");
+                                    }
                                 }
                             });
                         }

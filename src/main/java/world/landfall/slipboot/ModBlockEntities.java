@@ -19,9 +19,14 @@ public class ModBlockEntities {
             () -> BlockEntityType.Builder.of(RepairableBlockEntity::new, ModBlocks.REPAIRABLE_BLOCK.get()).build(null)
     );
     public static final Supplier<BlockEntityType<WarpBlockEntity>> WARP_BLOCK_ENTITY = BLOCKENTITIES.register("warp",
-            () -> BlockEntityType.Builder.of(WarpBlockEntity::new, ModBlocks.WARP.get()).build(null)
+            () -> BlockEntityType.Builder.of(
+                    WarpBlockEntity::new,
+                    ModBlocks.WARP.get()
+            ).build(null)
     );
     public static void register(IEventBus eventBus) {
+        System.out.println("Registering ModBlockEntities");
         BLOCKENTITIES.register(eventBus);
+
     }
 }

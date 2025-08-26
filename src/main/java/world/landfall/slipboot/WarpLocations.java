@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
 import de.bluecolored.bluemap.api.BlueMapAPI;
+import world.landfall.slipboot.integration.BlueMapIntegration;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -58,14 +59,6 @@ public class WarpLocations extends SavedData {
         return new WarpLocations();
     }
 
-    public static int getCost(String a, String b) {
-        for (int i = 0; i < dimensions.length; i++)
-            if (dimensions[i].equals(a))
-                for (int j = 0; j < dimensions.length; j++)
-                    if (dimensions[j].equals(b))
-                        return cost[i][j];
-        return 0;
-    }
 
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, HolderLookup.@NotNull Provider provider) {
@@ -152,5 +145,27 @@ public class WarpLocations extends SavedData {
             if (x.id == id)
                 return x;
         return null;
+    }
+    public static String serialize(WarpLocations locations) {
+        var map = locations.getLocations();
+        var stringOut = "{";
+        for (Integer x : map.keySet()) {
+            var y = map.get(x);
+            var locationData = "{\"level\":\""
+                    + y.level + "\",\"name\":\""
+                    + y.name + "\",\"pos\":\""
+                    + y.pos.toShortString() + "\",\"active\":\""
+                    + y.active + "\",\"id\":\""
+                    + y.id + "\"}";
+            stringOut += "\""+x.toString()+"\":"+locationData+",";
+
+        }
+        stringOut = stringOut.substring(0, stringOut.length()-1) + "}";
+        System.out.println(stringOut);
+        return stringOut;
+    }
+    public static WarpLocations unserialize(String locationData) {
+
+        return WarpLocations.create();
     }
 }

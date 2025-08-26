@@ -16,18 +16,20 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.portal.DimensionTransition;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import world.landfall.slipboot.Slipboot;
 import world.landfall.slipboot.WarpLocations;
+import world.landfall.slipboot.networking.LocationListPacket;
 import world.landfall.slipboot.networking.WarpPacket;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
 public class WarpScreen extends Screen {
     private static final class Layout {
         static final int BUTTON_HEIGHT = 20;
@@ -67,13 +69,13 @@ public class WarpScreen extends Screen {
     }
     private final Player player;
     private final BlockPos pos;
-    private static final HashMap<Integer, WarpLocations.WarpLocation> locations = Slipboot.locationData.getLocations();
     private LocationListWidget locationListWidget;
     public WarpScreen(BlockPos pos, Player player) {
         super(Component.translatable("screen.slipboot.warp"));
         this.minecraft = Minecraft.getInstance();
         this.pos = pos;
         this.player = player;
+
     }
 
     @Override
@@ -92,6 +94,7 @@ public class WarpScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+
 //        this.addRenderableWidget(Button.builder(Component.translatable("gui.warp.button.test"), new Button.OnPress() {
 //            @Override
 //            public void onPress(Button button) {
@@ -100,8 +103,8 @@ public class WarpScreen extends Screen {
 //        }).build());
         locationListWidget = new LocationListWidget(Minecraft.getInstance(), 300, 150, (this.width-300)/2, (this.height-200)/2, 20);
         this.addRenderableWidget(locationListWidget);
-        for (Integer i : locations.keySet()) {
-            WarpLocations.WarpLocation location = locations.get(i);
+        for (Integer i : Slipboot.locationData.getLocations().keySet()) {
+            WarpLocations.WarpLocation location = Slipboot.locationData.getLocations().get(i);
             if (!pos.equals(location.pos)) {
                 locationListWidget.addEntry(new LocationListWidget.Entry(location.id));
             }
@@ -112,24 +115,12 @@ public class WarpScreen extends Screen {
 
                 for (WarpLocations.WarpLocation x : Slipboot.locationData.getLocations().values()) {
                     if (locationListWidget.getSelected() != null && x.id == locationListWidget.getSelected().locationID) {
-                        if ( !WarpScreen.locations.get(locationListWidget.getSelected().locationID).pos.equals(pos) && WarpScreen.locations.get(locationListWidget.getSelected().locationID).active) {
+                        if ( !Slipboot.locationData.getLocations().get(locationListWidget.getSelected().locationID).pos.equals(pos) && Slipboot.locationData.getLocations().get(locationListWidget.getSelected().locationID).active) {
                             var server = player.getServer();
                             var levelResourceLocation = ResourceLocation.parse(x.level);
                             var newPos = x.pos.above().above();
 
                             PacketDistributor.sendToServer(new WarpPacket(player.getName().getString(),new Vector3f(newPos.getX() + .5f, newPos.getY(), newPos.getZ() + .5f), levelResourceLocation.toString()));
-//                            System.out.println("Got here 1 " + server);
-//                            if (server != null)
-//                                server.getAllLevels().forEach((level) -> {
-//                                    System.out.println("Got here 2");
-//                                    if (level.dimension().location().equals(levelResourceLocation)) {
-//                                        System.out.println("Got here 3");
-//                                        var newPos = x.pos.above();
-//
-//                                        Minecraft.getInstance().player.teleportTo(level, newPos.getX(), newPos.getY(), newPos.getZ(), Set.of(),0, 0);
-//                                    }
-//                                });
-                            //Minecraft.getInstance().player.moveTo(x.pos.above(), 0, 0);
                             onClose();
                         }
                     }

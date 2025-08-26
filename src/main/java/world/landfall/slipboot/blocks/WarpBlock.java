@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import world.landfall.slipboot.ModBlocks;
 import world.landfall.slipboot.Slipboot;
 import world.landfall.slipboot.WarpLocations;
-import world.landfall.slipboot.ui.WarpScreen;
+import world.landfall.slipboot.ui.ClientScreenHelper;
 
 import java.util.random.RandomGenerator;
 
@@ -136,7 +136,7 @@ public class WarpBlock extends RepairableBlock {
                         }
 
                     } else if (minecraft.player != null && level.isClientSide())
-                        minecraft.setScreen(new WarpScreen(pos, player));
+                        ClientScreenHelper.openWarpScreen(pos, player);
                     player.swing(hand);
                     return ItemInteractionResult.CONSUME;
 

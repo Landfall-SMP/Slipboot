@@ -1,30 +1,15 @@
-package world.landfall.slipboot;
+package world.landfall.slipboot.integration;
 
 import com.flowpowered.math.vector.Vector3d;
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;
-import de.bluecolored.bluemap.api.BlueMapWorld;
-import de.bluecolored.bluemap.api.gson.MarkerGson;
-import de.bluecolored.bluemap.api.markers.ElementMarker;
 import de.bluecolored.bluemap.api.markers.HtmlMarker;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
-import de.bluecolored.bluemap.api.markers.POIMarker;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.world.level.Level;
 
-import javax.imageio.ImageIO;
-import java.awt.image.RenderedImage;
-import java.awt.image.renderable.RenderedImageFactory;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class BlueMapIntegration {
     public static HashMap<String, MarkerSet> markerSetMap = new HashMap<String, MarkerSet>();

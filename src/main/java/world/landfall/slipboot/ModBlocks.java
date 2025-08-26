@@ -12,9 +12,12 @@ import world.landfall.slipboot.blocks.WarpBlock;
 
 public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Slipboot.MODID);
-    public static final DeferredBlock<Block> REPAIRABLE_BLOCK = BLOCKS.register("repairable_block", (registryName) -> new RepairableBlock(BlockBehaviour.Properties.of(),"minecraft:redstone"));
-    public static final DeferredBlock<Block> WARP = BLOCKS.register("warp", (registryName) -> new WarpBlock(BlockBehaviour.Properties.of()));
-    public static final DeferredBlock<Block> FAKE_TOP = BLOCKS.register("fake_top", (registryName) -> new FakeTop(BlockBehaviour.Properties.of()));
+    public static final DeferredBlock<Block> REPAIRABLE_BLOCK = BLOCKS.registerBlock("repairable_block", (registryName) -> new RepairableBlock(BlockBehaviour.Properties.of(),"minecraft:redstone"));
+    public static final DeferredBlock<Block> WARP = BLOCKS.registerBlock("warp", (registryName) -> {
+        System.out.println("I swear it registered the warp");
+        return new WarpBlock(BlockBehaviour.Properties.of());
+    });
+    public static final DeferredBlock<Block> FAKE_TOP = BLOCKS.registerBlock("fake_top", (registryName) -> new FakeTop(BlockBehaviour.Properties.of()));
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);
     }
