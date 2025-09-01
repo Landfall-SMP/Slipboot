@@ -1,36 +1,19 @@
 package world.landfall.slipboot;
 
-import de.bluecolored.bluemap.api.gson.MarkerGson;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Position;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
-import de.bluecolored.bluemap.api.BlueMapAPI;
+import net.neoforged.neoforge.network.PacketDistributor;
+import world.landfall.slipboot.networking.UpdateWarpLocationPacket;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
 
 public class WarpLocations extends SavedData {
-
-    public static final String[] dimensions = {"minecraft:overworld", "minecraft:the_nether", "minecraft:the_end"};
-    public static final int[][] cost = {
-            {0, 1, 2},
-            {1, 0, 3},
-            {2, 3, 0},
-    };
 
     public static class WarpLocation {
         public String name;
@@ -52,19 +35,10 @@ public class WarpLocations extends SavedData {
     }
     private final HashMap<Integer, WarpLocation> locations;
     public WarpLocations() {
-        locations = new HashMap<Integer, WarpLocation>();
+        locations = new HashMap<>();
     }
     public static WarpLocations create() {
         return new WarpLocations();
-    }
-
-    public static int getCost(String a, String b) {
-        for (int i = 0; i < dimensions.length; i++)
-            if (dimensions[i].equals(a))
-                for (int j = 0; j < dimensions.length; j++)
-                    if (dimensions[j].equals(b))
-                        return cost[i][j];
-        return 0;
     }
 
     @Override
@@ -76,7 +50,7 @@ public class WarpLocations extends SavedData {
             newTag.putIntArray("pos",new int[] {x.pos.getX(), x.pos.getY(), x.pos.getZ()});
             newTag.putBoolean("active", x.active);
             newTag.putInt("id", x.id);
-            newTag.putString("level", x.level.toString());
+            newTag.putString("level", x.level);
             locationsTag.add(newTag);
         }
 
@@ -93,9 +67,14 @@ public class WarpLocations extends SavedData {
                 data.locations.put(location.id, location);
             }
         }
-        if (Config.doBluemapIntegration)
-            for (WarpLocation x : data.locations.values())
-                BlueMapIntegration.addMarker(x.pos, x.name, x.id, ResourceLocation.parse(x.level));
+        if (Config.doBluemapIntegration) {
+            try {
+                for (WarpLocation x : data.locations.values())
+                    BlueMapIntegration.addMarker(x.pos, x.name, x.id, ResourceLocation.parse(x.level));
+            } catch (NoClassDefFoundError | Exception e) {
+                Slipboot.LOGGER.warn("Failed to add BlueMap markers: " + e.getMessage());
+            }
+        }
         return data;
     }
     public HashMap<Integer, WarpLocation> getLocations() {
@@ -113,26 +92,65 @@ public class WarpLocations extends SavedData {
             if (x.equals(newLocation))
                 return -1;
         locations.put(newLocation.id, newLocation);
-        if (Config.doBluemapIntegration)
-            BlueMapIntegration.addMarker(pos, name, newLocation.id, ResourceLocation.parse(newLocation.level));
+        if (Config.doBluemapIntegration) {
+            try {
+                BlueMapIntegration.addMarker(pos, name, newLocation.id, ResourceLocation.parse(newLocation.level));
+            } catch (NoClassDefFoundError | Exception e) {
+                Slipboot.LOGGER.warn("Failed to add BlueMap marker: " + e.getMessage());
+            }
+        }
         this.setDirty();
+        
+        // Send update to all clients
+        PacketDistributor.sendToAllPlayers(
+            UpdateWarpLocationPacket.createAdd(newLocation.id, name, pos, active, level)
+        );
+        
         return newLocation.id;
     }
     public boolean setActive(int id, boolean active) {
         this.setDirty();
-        locations.get(id).active = active;
+        WarpLocation loc = locations.get(id);
+        if (loc != null) {
+            loc.active = active;
+            
+            // Send update to all clients
+            PacketDistributor.sendToAllPlayers(
+                UpdateWarpLocationPacket.createUpdateActive(id, active)
+            );
+        }
         return true;
     }
     public boolean removeLocation(int id) {
         this.setDirty();
-        if (Config.doBluemapIntegration)
-            BlueMapIntegration.removeMarker(id, ResourceLocation.parse(locations.get(id).level));
+        if (Config.doBluemapIntegration) {
+            try {
+                BlueMapIntegration.removeMarker(id, ResourceLocation.parse(locations.get(id).level));
+            } catch (NoClassDefFoundError | Exception e) {
+                Slipboot.LOGGER.warn("Failed to remove BlueMap marker: " + e.getMessage());
+            }
+        }
 
-        return locations.remove(id)!=null;
+        boolean removed = locations.remove(id) != null;
+        if (removed) {
+            // Send update to all clients
+            PacketDistributor.sendToAllPlayers(
+                UpdateWarpLocationPacket.createRemove(id)
+            );
+        }
+        return removed;
     }
     public boolean setName(int id, String name) {
         this.setDirty();
-        locations.get(id).name = name;
+        WarpLocation loc = locations.get(id);
+        if (loc != null) {
+            loc.name = name;
+            
+            // Send update to all clients
+            PacketDistributor.sendToAllPlayers(
+                UpdateWarpLocationPacket.createUpdateName(id, name)
+            );
+        }
         return true;
     }
     public int getId(BlockPos pos) {
