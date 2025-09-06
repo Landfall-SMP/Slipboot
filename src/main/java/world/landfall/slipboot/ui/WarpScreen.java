@@ -1,33 +1,29 @@
 package world.landfall.slipboot.ui;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
-import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.portal.DimensionTransition;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import world.landfall.slipboot.Slipboot;
 import world.landfall.slipboot.WarpLocations;
+import world.landfall.slipboot.client.ClientWarpData;
 import world.landfall.slipboot.networking.WarpPacket;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Map;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class WarpScreen extends Screen {
     private static final class Layout {
         static final int BUTTON_HEIGHT = 20;
@@ -67,7 +63,7 @@ public class WarpScreen extends Screen {
     }
     private final Player player;
     private final BlockPos pos;
-    private static final HashMap<Integer, WarpLocations.WarpLocation> locations = Slipboot.locationData.getLocations();
+    private Map<Integer, WarpLocations.WarpLocation> locations;
     private LocationListWidget locationListWidget;
     public WarpScreen(BlockPos pos, Player player) {
         super(Component.translatable("screen.slipboot.warp"));
@@ -78,58 +74,45 @@ public class WarpScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        if (!Minecraft.getInstance().player.level().isClientSide()) return;
+        // Remove the client-side check - render methods only run on client
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        int height = guiGraphics.guiHeight();
-        int width = guiGraphics.guiWidth();
-        int boxHeight = 250;
-        int boxWidth = 300;
-
-        //guiGraphics.fill((width-boxWidth)/2, (height-boxHeight)/2, (width+boxWidth)/2, (height+boxHeight)/2, Colors.PANEL_BACKGROUND);
+        // Render background if needed in the future
     }
 
 
     @Override
     protected void init() {
         super.init();
-//        this.addRenderableWidget(Button.builder(Component.translatable("gui.warp.button.test"), new Button.OnPress() {
-//            @Override
-//            public void onPress(Button button) {
-//                System.out.println("test");
-//            }
-//        }).build());
+        
+        // Use client-side warp data
+        locations = ClientWarpData.getLocations();
+        if (locations.isEmpty()) {
+            Slipboot.LOGGER.warn("WarpScreen: No warp locations available on client");
+        }
         locationListWidget = new LocationListWidget(Minecraft.getInstance(), 300, 150, (this.width-300)/2, (this.height-200)/2, 20);
         this.addRenderableWidget(locationListWidget);
-        for (Integer i : locations.keySet()) {
+        
+        if (locations != null) {
+            for (Integer i : locations.keySet()) {
             WarpLocations.WarpLocation location = locations.get(i);
             if (!pos.equals(location.pos)) {
-                locationListWidget.addEntry(new LocationListWidget.Entry(location.id));
+                    locationListWidget.addEntry(new LocationListWidget.Entry(location.id));
+                }
             }
         }
         Button button = new Button.Builder(Component.translatable("gui.warp.button.warp"), new Button.OnPress() {
             @Override
             public void onPress(Button button) {
 
-                for (WarpLocations.WarpLocation x : Slipboot.locationData.getLocations().values()) {
+                for (WarpLocations.WarpLocation x : ClientWarpData.getLocations().values()) {
                     if (locationListWidget.getSelected() != null && x.id == locationListWidget.getSelected().locationID) {
-                        if ( !WarpScreen.locations.get(locationListWidget.getSelected().locationID).pos.equals(pos) && WarpScreen.locations.get(locationListWidget.getSelected().locationID).active) {
-                            var server = player.getServer();
+                        if (locations != null && locations.get(locationListWidget.getSelected().locationID) != null &&
+                            !locations.get(locationListWidget.getSelected().locationID).pos.equals(pos) && 
+                            locations.get(locationListWidget.getSelected().locationID).active) {
                             var levelResourceLocation = ResourceLocation.parse(x.level);
                             var newPos = x.pos.above().above();
 
                             PacketDistributor.sendToServer(new WarpPacket(player.getName().getString(),new Vector3f(newPos.getX() + .5f, newPos.getY(), newPos.getZ() + .5f), levelResourceLocation.toString()));
-//                            System.out.println("Got here 1 " + server);
-//                            if (server != null)
-//                                server.getAllLevels().forEach((level) -> {
-//                                    System.out.println("Got here 2");
-//                                    if (level.dimension().location().equals(levelResourceLocation)) {
-//                                        System.out.println("Got here 3");
-//                                        var newPos = x.pos.above();
-//
-//                                        Minecraft.getInstance().player.teleportTo(level, newPos.getX(), newPos.getY(), newPos.getZ(), Set.of(),0, 0);
-//                                    }
-//                                });
-                            //Minecraft.getInstance().player.moveTo(x.pos.above(), 0, 0);
                             onClose();
                         }
                     }
@@ -175,8 +158,15 @@ public class WarpScreen extends Screen {
             }
             @Override
             public void render(GuiGraphics guiGraphics, int i, int i1, int i2, int i3, int i4, int i5, int i6, boolean b, float v) {
-                if (!Minecraft.getInstance().player.level().isClientSide()) return;
-                WarpLocations.WarpLocation location = Slipboot.locationData.getLocation(locationID);
+                // Use client-side warp data
+                WarpLocations.WarpLocation location = ClientWarpData.getLocation(locationID);
+                
+                if (location == null) {
+                    // Fallback rendering if location data not available
+                    guiGraphics.drawString(Minecraft.getInstance().font, "Warp #" + locationID, i2+2, i1+4, Colors.GRAY_TEXT_COLOR);
+                    return;
+                }
+                
                 guiGraphics.drawString(Minecraft.getInstance().font, location.name, i2+2, i1+4,
                         location.active ?
                         Colors.TEXT_COLOR :

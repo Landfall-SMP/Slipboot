@@ -1,22 +1,14 @@
 package world.landfall.slipboot.blocks;
 
-import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -30,19 +22,24 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import world.landfall.slipboot.ModBlocks;
 import world.landfall.slipboot.Slipboot;
 import world.landfall.slipboot.WarpLocations;
-import world.landfall.slipboot.ui.WarpScreen;
 
-import java.util.random.RandomGenerator;
+import world.landfall.slipboot.Constants;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.lang.reflect.Method;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class WarpBlock extends RepairableBlock {
-    private static final String[] randomNames = {"This place", "That place", "That other place", "America", "Antarctica"};
+    private static final String[] randomNames = {"Terranova", "New Ides", "Glazov", "Cuidense", "Saludo", "Whimsy"};
     private static WarpLocations locationData = Slipboot.locationData;
+
+    private static Method openWarpScreenMethod = null;
+    private static boolean reflectionInitialized = false;
     public static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 32, 15);
     public static final VoxelShape BROKEN_SHAPE = Block.box(1, 0, 1, 15, 21, 15);
     public WarpBlock(Properties properties) {
@@ -65,7 +62,7 @@ public class WarpBlock extends RepairableBlock {
 
 
         if (level.getBlockState(pos.above()).is(BuiltInRegistries.BLOCK.get(ResourceLocation.parse("minecraft:air")))) {
-            level.setBlock(pos.above(), BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(Slipboot.MODID, "fake_top")).defaultBlockState(),Block.UPDATE_CLIENTS);
+            level.setBlock(pos.above(), BuiltInRegistries.BLOCK.get(Constants.modResource(Constants.FAKE_TOP_BLOCK)).defaultBlockState(),Block.UPDATE_CLIENTS);
         }
         Slipboot.LOGGER.info("Warp at " + pos.toString() + " created.");
 
@@ -87,10 +84,10 @@ public class WarpBlock extends RepairableBlock {
         if (locationData != null && !level.isClientSide()) {
             locationData.removeLocation(locationData.getId(pos));
         }
-        if (level.getBlockState(pos.above()).is(BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(Slipboot.MODID, "fake_top")))) {
+        if (level.getBlockState(pos.above()).is(BuiltInRegistries.BLOCK.get(Constants.modResource(Constants.FAKE_TOP_BLOCK)))) {
             level.setBlock(pos.above(), BuiltInRegistries.BLOCK.get(ResourceLocation.parse("minecraft:air")).defaultBlockState(), Block.UPDATE_CLIENTS);
         }
-        Slipboot.LOGGER.info("Warp at " + pos.toString() + " removed.");
+        Slipboot.LOGGER.info("Warp at {} removed.", pos.toString());
     }
 
     @Override
@@ -101,56 +98,86 @@ public class WarpBlock extends RepairableBlock {
             if (locationData != null && !level.isClientSide()) {
                 locationData.setActive(locationData.getId(pos), false);
             }
-            if (level.getBlockState(pos.above()).is(BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(Slipboot.MODID, "fake_top")))) {
+            if (level.getBlockState(pos.above()).is(BuiltInRegistries.BLOCK.get(Constants.modResource(Constants.FAKE_TOP_BLOCK)))) {
                 level.setBlock(
                         pos.above(),
-                        BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(Slipboot.MODID, "fake_top")).defaultBlockState().setValue(FakeTop.brokenState, FakeTop.BrokenState.BROKEN),
+                        BuiltInRegistries.BLOCK.get(Constants.modResource(Constants.FAKE_TOP_BLOCK)).defaultBlockState().setValue(FakeTop.brokenState, FakeTop.BrokenState.BROKEN),
                         Block.UPDATE_CLIENTS
                 );
 
             }
-            Slipboot.LOGGER.info("Warp at " + pos.toString() + " broken.");
+            Slipboot.LOGGER.info("Warp at {} broken.", pos.toString());
         }
         return destroyed;
     }
 
     @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        BrokenState brokenState = state.getValue(RepairableBlock.brokenState);
+        
+        // If the block is intact, open the GUI
+        if (brokenState == BrokenState.INTACT) {
+            if (level.isClientSide()) {
+                Slipboot.LOGGER.info("useWithoutItem: Attempting to open warp screen for pos: " + pos);
+                openClientScreen(pos, player);
+            }
+            return InteractionResult.SUCCESS;
+        }
+        
+        return InteractionResult.PASS;
+    }
+    
+    @Override
     protected @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         BrokenState brokenState = state.getValue(RepairableBlock.brokenState);
+        
+        // Handle name tag first
+        if (brokenState == BrokenState.INTACT && stack.is(BuiltInRegistries.ITEM.get(ResourceLocation.parse("minecraft:name_tag")))) {
+            if (locationData != null && !level.isClientSide()) {
+                var customName = stack.getComponents().get(DataComponents.CUSTOM_NAME);
+                if (customName != null) {
+                    String newName = Constants.sanitizeName(customName.getString());
+                    
+                    if (!newName.isEmpty()) {
+                        locationData.setName(locationData.getId(pos), newName);
+                        if (!player.isCreative())
+                            stack.shrink(1);
+                        if (level.getBlockState(pos.above()).is(BuiltInRegistries.BLOCK.get(Constants.modResource(Constants.FAKE_TOP_BLOCK)))) {
+                            BlockState fakeTopState = level.getBlockState(pos.above());
+                            level.setBlock(pos.above(), fakeTopState.setValue(FakeTop.brokenState, FakeTop.BrokenState.INTACT), Block.UPDATE_CLIENTS);
+                        }
+                        Slipboot.LOGGER.info("Warp at {} renamed to: {}", pos, newName);
+                    } else {
+                        Slipboot.LOGGER.warn("Invalid warp name provided (empty after sanitization)");
+                    }
+                }
+            }
+            player.swing(hand);
+            return ItemInteractionResult.CONSUME;
+        }
+        
+        // Check parent class for repair functionality
         ItemInteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-        Minecraft minecraft = Minecraft.getInstance();
+        
         switch(result) {
             case ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION:
+                // If the block is intact and we're not holding a special item, open the menu
                 if (brokenState == BrokenState.INTACT) {
-                    if (stack.is(BuiltInRegistries.ITEM.get(ResourceLocation.parse("minecraft:name_tag")))) {
-                        if (locationData != null && !level.isClientSide()) {
-                            locationData.setName(locationData.getId(pos), stack.getComponents().get(DataComponents.CUSTOM_NAME).getString());
-                            if (!player.isCreative())
-                                stack.shrink(1);
-                            if (level.getBlockState(pos.above()).is(BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(Slipboot.MODID, "fake_top")))) {
-
-                                level.getBlockState(pos.above()).setValue(FakeTop.brokenState, FakeTop.BrokenState.INTACT);
-
-                            }
-                            Slipboot.LOGGER.info("Warp at " + pos.toString() + " repaired.");
-                        }
-
-                    } else if (minecraft.player != null && level.isClientSide())
-                        minecraft.setScreen(new WarpScreen(pos, player));
+                    if (level.isClientSide()) {
+                        Slipboot.LOGGER.info("Attempting to open warp screen for pos: " + pos);
+                        openClientScreen(pos, player);
+                    }
                     player.swing(hand);
                     return ItemInteractionResult.CONSUME;
-
                 }
                 break;
             case ItemInteractionResult.SUCCESS:
                 if (!level.isClientSide())
                     locationData.setActive(locationData.getId(pos), true);
-                System.out.println("One");
-                if (level.getBlockState(pos.above()).is(BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(Slipboot.MODID, "fake_top")))) {
-                    System.out.println("Two");
+                if (level.getBlockState(pos.above()).is(BuiltInRegistries.BLOCK.get(Constants.modResource(Constants.FAKE_TOP_BLOCK)))) {
                     level.setBlock(
                             pos.above(),
-                            BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(Slipboot.MODID, "fake_top")).defaultBlockState(),
+                            BuiltInRegistries.BLOCK.get(Constants.modResource(Constants.FAKE_TOP_BLOCK)).defaultBlockState(),
                             Block.UPDATE_CLIENTS
                     );
 
@@ -172,9 +199,35 @@ public class WarpBlock extends RepairableBlock {
         return brokenState == BrokenState.BROKEN ? BROKEN_SHAPE : SHAPE;
     }
 
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
+    private static void openClientScreen(BlockPos pos, Player player) {
+        // Initialize reflection cache on first use
+        if (!reflectionInitialized) {
+            try {
+                // Cache reflection results for better performance
+                Class<?> clientHelperClass = Class.forName("world.landfall.slipboot.client.ClientHelper");
+                openWarpScreenMethod = clientHelperClass.getMethod("openWarpScreen", BlockPos.class, Player.class);
+                reflectionInitialized = true;
+                Slipboot.LOGGER.debug("ClientHelper reflection cache initialized");
+            } catch (ClassNotFoundException e) {
+                Slipboot.LOGGER.error("ClientHelper class not found", e);
+                reflectionInitialized = true; // Don't retry
+                return;
+            } catch (NoSuchMethodException e) {
+                Slipboot.LOGGER.error("openWarpScreen method not found", e);
+                reflectionInitialized = true; // Don't retry
+                return;
+            }
+        }
+        
+        // Use cached reflection to open screen
+        if (openWarpScreenMethod != null) {
+            try {
+                openWarpScreenMethod.invoke(null, pos, player);
+                Slipboot.LOGGER.debug("Successfully opened warp screen at {}", pos);
+            } catch (Exception e) {
+                Slipboot.LOGGER.error("Failed to open warp screen: " + e.getMessage(), e);
+            }
+        }
     }
 
 

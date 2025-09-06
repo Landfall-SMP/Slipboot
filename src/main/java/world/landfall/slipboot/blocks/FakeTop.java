@@ -1,12 +1,10 @@
 package world.landfall.slipboot.blocks;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -21,11 +19,11 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
-import world.landfall.slipboot.Slipboot;
-import world.landfall.slipboot.WarpLocations;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class FakeTop extends Block {
     enum BrokenState implements StringRepresentable {
         INTACT,
@@ -33,11 +31,9 @@ public class FakeTop extends Block {
 
         @Override
         public String getSerializedName() {
-            return switch(this) {
-                case INTACT:
-                    yield "intact";
-                case BROKEN:
-                    yield "broken";
+            return switch (this) {
+                case INTACT -> "intact";
+                case BROKEN -> "broken";
             };
         }
     }
@@ -58,10 +54,9 @@ public class FakeTop extends Block {
     public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         var warp = level.getBlockState(pos.below());
         var destroyed = warp.onDestroyedByPlayer(level, pos.below(), player, willHarvest, fluid);
-        System.out.println(destroyed);
         if (destroyed)
             warp.getBlock().destroy(level, pos.below(), warp);
-        return player.isCreative();
+        return destroyed;
     }
 
     @Override
